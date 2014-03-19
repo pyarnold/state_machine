@@ -6,12 +6,13 @@ except ImportError:
 
 from state_machine.orm.base import BaseAdaptor
 
+
 class MongoAdaptor(BaseAdaptor):
 
     def extra_class_members(self, initial_state):
         return {'aasm_state': mongoengine.StringField(default=initial_state.name)}
 
-    def update(self,document,state_name):
+    def update(self, document, state_name):
         document.aasm_state = state_name
 
 

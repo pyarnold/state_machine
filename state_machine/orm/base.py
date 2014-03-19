@@ -2,6 +2,7 @@ from __future__ import absolute_import
 import inspect
 from state_machine.models import Event, State, InvalidStateTransition
 
+
 class BaseAdaptor(object):
 
     def __init__(self, original_class):
@@ -17,7 +18,7 @@ class BaseAdaptor(object):
                         raise ValueError("multiple initial states!")
                     initial_state = value
 
-                #add its name to itself:
+                # add its name to itself:
                 setattr(value, 'name', member)
 
                 is_method_string = "is_" + member
@@ -31,7 +32,6 @@ class BaseAdaptor(object):
                 is_method_dict[is_method_string] = is_method_builder(member)
         return is_method_dict, initial_state
 
-
     def process_events(self, original_class):
         _adaptor = self
         event_method_dict = dict()
@@ -41,7 +41,7 @@ class BaseAdaptor(object):
 
                 def event_meta_method(event_name, event_description):
                     def f(self):
-                        #assert current state
+                        # assert current state
                         if self.current_state not in event_description.from_states:
                             raise InvalidStateTransition
 
@@ -55,12 +55,12 @@ class BaseAdaptor(object):
                                     failed = True
                                     break
 
-
-                        #change state
+                        # change state
                         if not failed:
-                            _adaptor.update(self, event_description.to_state.name)
+                            _adaptor.update(
+                                self, event_description.to_state.name)
 
-                            #fire after_change
+                            # fire after_change
                             if event_name in self.__class__.callback_cache[_adaptor.original_class.__name__]['after']:
                                 for callback in self.__class__.callback_cache[_adaptor.original_class.__name__]['after'][event_name]:
                                     callback(self)
@@ -69,7 +69,6 @@ class BaseAdaptor(object):
 
                 event_method_dict[member] = event_meta_method(member, value)
         return event_method_dict
-
 
     def modifed_class(self, original_class, callback_cache):
 
@@ -102,5 +101,5 @@ class BaseAdaptor(object):
     def extra_class_members(self, initial_state):
         raise NotImplementedError
 
-    def update(self,document,state_name):
+    def update(self, document, state_name):
         raise NotImplementedError
